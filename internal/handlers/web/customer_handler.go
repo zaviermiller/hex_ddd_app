@@ -3,7 +3,6 @@ package web
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 
 	"hex_ddd_app/internal/core/domain"
@@ -32,12 +31,12 @@ func (h HTTPCustomerHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	customer, err := h.customerService.Get(id)
 	if err != nil {
-		log.Fatalf("%s", err.Error())
+		http.Error(w, err.Error(), 500)
 	}
 
 	err = json.NewEncoder(w).Encode(customer)
 	if err != nil {
-		log.Fatalf("%s", err.Error())
+		http.Error(w, err.Error(), 500)
 	}
 }
 
@@ -48,22 +47,26 @@ func (h HTTPCustomerHandler) Create(w http.ResponseWriter, r *http.Request) {
 
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Println(err)
+		http.Error(w, err.Error(), 400)
+	}
+
+	if len(body) < 1 {
+		http.Error(w, "req body must have customer", 400)
 	}
 
 	var cust domain.Customer
 	err = json.Unmarshal(body, &cust)
 	if err != nil {
-		log.Println(err)
+		http.Error(w, err.Error(), 400)
 	}
 
 	newCust, err := h.customerService.Create(cust)
 	if err != nil {
-		log.Println(err)
+		http.Error(w, err.Error(), 500)
 	}
 
 	err = json.NewEncoder(w).Encode(newCust)
 	if err != nil {
-		log.Println(err)
+		http.Error(w, err.Error(), 500)
 	}
 }

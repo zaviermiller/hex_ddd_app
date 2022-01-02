@@ -27,6 +27,9 @@ func (db *memDB) GetCustomer(id string) (domain.Customer, error) {
 }
 
 func (db *memDB) SaveCustomer(customer domain.Customer) error {
+	if customer.ID == "" {
+		return errors.New("missing primary key")
+	}
 	if _, ok := db.data[customer.ID]; ok {
 		return errors.New("primary key already in database")
 	}
