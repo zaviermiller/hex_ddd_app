@@ -1,16 +1,18 @@
-package web
+package rest
 
 import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 
-	"hex_ddd_app/internal/core/domain"
-	"hex_ddd_app/internal/core/ports"
+	"hex_ddd_app/internal/client/entities"
+	"hex_ddd_app/internal/client/ports"
 
 	"github.com/gorilla/mux"
 )
 
+// adapter for customer driver port
 type HTTPCustomerHandler struct {
 	customerService ports.CustomerService
 }
@@ -28,10 +30,16 @@ func (h HTTPCustomerHandler) Get(w http.ResponseWriter, r *http.Request) {
 
 	pathVars := mux.Vars(r)
 	id := pathVars["id"]
-
-	customer, err := h.customerService.Get(id)
+	idInt, err := strconv.Atoi(id)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	customer, err := h.customerService.Get(uint(idInt))
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	err = json.NewEncoder(w).Encode(customer)
@@ -54,18 +62,18 @@ func (h HTTPCustomerHandler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "req body must have customer", 400)
 	}
 
-	var cust domain.Customer
+	var cust entities.Customer
 	err = json.Unmarshal(body, &cust)
 	if err != nil {
 		http.Error(w, err.Error(), 400)
 	}
 
-	newCust, err := h.customerService.Create(cust)
+	err = h.customerService.Create(&cust)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}
 
-	err = json.NewEncoder(w).Encode(newCust)
+	err = json.NewEncoder(w).Encode(cust)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 	}

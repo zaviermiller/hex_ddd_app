@@ -1,9 +1,9 @@
-package web
+package rest
 
 import (
 	"bytes"
 	"encoding/json"
-	"hex_ddd_app/internal/core/domain"
+	"hex_ddd_app/internal/client/entities"
 	"hex_ddd_app/internal/mocks"
 	"io/ioutil"
 	"net/http"
@@ -72,7 +72,7 @@ func Test_HTTPCustomerHandler_Create(t *testing.T) {
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)
-	var cust domain.Customer
+	var cust entities.Customer
 
 	json.Unmarshal(body, &cust)
 

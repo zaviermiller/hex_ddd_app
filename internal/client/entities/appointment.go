@@ -1,3 +1,3 @@
-package domain
+package entities
 
 type Appointment struct{}

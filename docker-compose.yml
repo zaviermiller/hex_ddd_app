@@ -1,0 +1,48 @@
+version: '3.7'
+
+networks:
+  hexapp:
+    name: 'hexapp.localhost'
+
+services:
+  db:
+    image: postgres:13
+    container_name: hexapp-db
+    restart: unless-stopped
+    expose:
+      - 5432 # port for other containers, default
+    ports:
+      - 5432:5432 # port for connecting outside docker
+    environment:
+      POSTGRES_PASSWORD: hexapp
+    volumes:
+      - pgdata13:/var/lib/postgresql/data
+    networks:
+      hexapp: null
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: build/dev/Dockerfile
+    container_name: hexapp-api
+    environment:
+      DATABASE_URL: postgresql://postgres:hexapp@db.hexapp.localhost:5432
+
+    ports:
+      - 4200:4200
+    expose:
+      - 4200
+    volumes:
+      - .:/app
+    networks:
+      hexapp: null
+    depends_on:
+      - 'db'
+
+volumes:
+  pgdata13:

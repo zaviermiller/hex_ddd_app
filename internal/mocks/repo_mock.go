@@ -2,7 +2,7 @@ package mocks
 
 import (
 	"errors"
-	"hex_ddd_app/internal/core/domain"
+	"hex_ddd_app/internal/client/entities"
 )
 
 // simple mock that satisfies CustomerRepository interface
@@ -16,15 +16,15 @@ func NewDBMock(errOut bool) *repoDBMock {
 	}
 }
 
-func (db *repoDBMock) GetCustomer(id string) (domain.Customer, error) {
+func (db *repoDBMock) GetCustomer(id uint) (entities.Customer, error) {
 	if db.ErrOut {
-		return domain.Customer{}, errors.New("Invalid customer")
+		return entities.Customer{}, errors.New("Invalid customer")
 	}
 
-	return domain.Customer{FirstName: "Ada", LastName: "Lovelace", SignedWaiver: true}, nil
+	return entities.Customer{ID: id, FirstName: "Ada", LastName: "Lovelace", SignedWaiver: true}, nil
 }
 
-func (db *repoDBMock) SaveCustomer(customer domain.Customer) error {
+func (db *repoDBMock) SaveCustomer(customer *entities.Customer) error {
 	if db.ErrOut {
 		return errors.New("Invalid customer")
 	}
